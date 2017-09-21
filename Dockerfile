@@ -1,5 +1,5 @@
 # vim:set ft=dockerfile:
-FROM debian:jessie
+FROM resin/raspberrypi3-debian:jessie
 
 RUN set -ex; \
 	if ! command -v gpg > /dev/null; then \
@@ -30,6 +30,7 @@ RUN set -x \
 
 # make the "en_US.UTF-8" locale so postgres will be utf-8 enabled by default
 RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+  && ln -s /etc/locale.alias /usr/share/locale/locale.alias \
 	&& localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG en_US.utf8
 
@@ -128,7 +129,5 @@ VOLUME /var/lib/postgresql/data
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
-ENTRYPOINT ["docker-entrypoint.sh"]
 
-EXPOSE 5432
-CMD ["postgres"]
+CMD ["docker-entrypoint.sh", "postgres"]
